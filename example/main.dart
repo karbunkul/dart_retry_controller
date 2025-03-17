@@ -13,6 +13,7 @@ final controller = RetryController<bool>(
 Future<void> main() async {
   controller.status.listen(print);
   final res = await controller.execute(onAction: _onAction);
+  await controller.execute(onAction: _onAction);
 
   print(res.status);
 }
