@@ -1,4 +1,4 @@
-import 'dart:async' show Completer, Timer;
+import 'dart:async' show Completer, Timer, StreamController;
 
 import 'result.dart';
 import 'types.dart';
@@ -17,6 +17,12 @@ final class RetryController<T extends Object> {
 
   /// Callback function triggered after each retry attempt.
   final StatusCallback? onStatus;
+
+  /// Stream controller for status updates.
+  final _statusController = StreamController<RetryStatus>.broadcast();
+
+  /// Exposes the status stream.
+  Stream<RetryStatus> get status => _statusController.stream;
 
   /// Current attempt number.
   int _currentAttempt = 0;
@@ -120,9 +126,11 @@ final class RetryController<T extends Object> {
     _tryAction(onAction: _retryAction!);
   }
 
-  /// Triggers the status callback and stops retries on success.
+  /// Triggers the status callback, sends status to the stream, and stops retries on success.
   void _onStatus(RetryStatus status) {
+    _statusController.add(status);
     onStatus?.call(status);
+
     if (status == RetryStatus.success) stop();
   }
 
@@ -133,5 +141,10 @@ final class RetryController<T extends Object> {
     _timer = null;
     _completer = null;
     _retryAction = null;
+  }
+
+  /// Closes the status stream.
+  void dispose() {
+    _statusController.close();
   }
 }
