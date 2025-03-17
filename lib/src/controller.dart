@@ -19,10 +19,10 @@ final class RetryController<T extends Object> {
   final StatusCallback? onStatus;
 
   /// Stream controller for status updates.
-  final _statusController = StreamController<RetryStatus>.broadcast();
+  StreamController<RetryStatus>? _statusController;
 
   /// Exposes the status stream.
-  Stream<RetryStatus> get status => _statusController.stream;
+  Stream<RetryStatus> get status => _statusController!.stream;
 
   /// Current attempt number.
   int _currentAttempt = 0;
@@ -61,6 +61,7 @@ final class RetryController<T extends Object> {
 
     if (_currentAttempt == 0) {
       _retryAction ??= onAction;
+      _statusController = StreamController<RetryStatus>.broadcast();
       _completer = Completer<ActionResult<T>>();
     }
 
@@ -128,23 +129,21 @@ final class RetryController<T extends Object> {
 
   /// Triggers the status callback, sends status to the stream, and stops retries on success.
   void _onStatus(RetryStatus status) {
-    _statusController.add(status);
+    _statusController?.add(status);
     onStatus?.call(status);
 
-    if (status == RetryStatus.success) stop();
+    if (status != RetryStatus.attempt) {
+      stop();
+    }
   }
 
   /// Stops the retry process and resets the state.
   void stop() {
     _currentAttempt = 0;
+    _statusController?.close();
     _timer?.cancel();
     _timer = null;
     _completer = null;
     _retryAction = null;
-  }
-
-  /// Closes the status stream.
-  void dispose() {
-    _statusController.close();
   }
 }
