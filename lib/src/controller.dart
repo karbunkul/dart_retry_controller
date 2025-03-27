@@ -72,7 +72,7 @@ final class RetryController<T extends Object> {
       execute(onAction: onAction);
     }
 
-    return _completer!.future;
+    return _completer?.future ?? ActionResult.fail();
   }
 
   /// Attempts to perform the action and retries if necessary.
@@ -129,8 +129,10 @@ final class RetryController<T extends Object> {
 
   /// Triggers the status callback, sends status to the stream, and stops retries on success.
   void _onStatus(RetryStatus status) {
-    _statusController?.add(status);
-    onStatus?.call(status);
+    if (!_statusController.isClosed) {
+      _statusController.add(status);
+      onStatus?.call(status);
+    }
 
     if (status != RetryStatus.attempt) {
       stop();
