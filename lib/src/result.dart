@@ -23,4 +23,12 @@ final class ActionResult<T extends Object> {
   factory ActionResult.success(T data) {
     return ActionResult._(status: RetryStatus.success, data: data);
   }
+
+  /// Creates an [ActionResult] representing a canceled retry process.
+  ///
+  /// This is used when the retry operation is manually or programmatically stopped
+  /// before reaching success or failure.
+  factory ActionResult.canceled() {
+    return ActionResult._(status: RetryStatus.canceled);
+  }
 }

@@ -19,7 +19,12 @@ Future<void> main() async {
 }
 
 FutureOr<bool?> _onAction() {
-  final res = Random().nextBool();
-  print('New action request: ${controller.attempt}, result: $res');
-  return (res) ? true : null;
+  try {
+    final res = Random().nextBool();
+
+    print('New action request: ${controller.attempt}, result: $res');
+    return (res) ? true : null;
+  } finally {
+    Future.delayed(const Duration(seconds: 1), controller.stop);
+  }
 }

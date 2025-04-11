@@ -141,6 +141,10 @@ final class RetryController<T extends Object> {
 
   /// Stops the retry process and resets the state.
   void stop() {
+    if (isActive && _completer?.isCompleted == false) {
+      _completer?.complete(ActionResult.canceled());
+    }
+
     _currentAttempt = 0;
     _statusController.close();
     _statusController = StreamController<RetryStatus>.broadcast();

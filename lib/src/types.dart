@@ -18,6 +18,7 @@ enum RetryMode { auto, manual }
 /// Represents the status of a retry attempt.
 ///
 /// - [success]: The action was successful.
-/// - [fail]: The action failed after exhausting retries.
+/// - [fail]: The action failed after exhausting all retry attempts.
 /// - [attempt]: A retry attempt was made.
-enum RetryStatus { success, fail, attempt }
+/// - [canceled]: The retry process was manually or programmatically canceled before completion.
+enum RetryStatus { success, fail, attempt, canceled }
